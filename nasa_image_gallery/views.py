@@ -27,11 +27,30 @@ def home(request):
     return render(request, 'home.html', {'images': images, 'favourite_list': favourite_list} )
 
 
-# función utilizada en el buscador.
+# Función utilizada en el buscador.
 def search(request):
+    # Obtiene todas las imágenes y la lista de favoritos.
     images, favourite_list = getAllImagesAndFavouriteList(request)
-    search_msg = request.POST.get('query', '')
 
+    # Obtiene el mensaje de búsqueda desde la solicitud POST.
+    search_msg = request.POST.get('query', '').lower()
+
+    if search_msg:
+        # Filtra las imágenes de NASACard que contienen el texto de búsqueda en el título o descripción.
+        filtered_images = [
+            image for image in images
+            if search_msg in image.title.lower() or search_msg in image.description.lower()
+        ]
+    else:
+        search_msg = "moon"
+        # Si no hay texto de búsqueda, se filtran las imágenes con la palabra "moon".
+        filtered_images = [
+            image for image in images
+            if search_msg in image.title.lower() or search_msg in image.description.lower()
+        ]
+
+    # Renderiza la plantilla 'home.html' con las imágenes filtradas y la lista de favoritos.
+    return render(request, 'home.html', {'images': filtered_images, 'favourite_list': favourite_list})
     # si el usuario no ingresó texto alguno, debe refrescar la página; caso contrario, debe filtrar aquellas imágenes que posean el texto de búsqueda.
     pass
 
